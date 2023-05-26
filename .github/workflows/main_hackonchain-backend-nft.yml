@@ -52,5 +52,5 @@ jobs:
         with:
           app-name: 'hackonchain-backend-nft'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_B08CD413B77447DA8C88CAC57B3D461E }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_EF4DED5854C4473692624FF78B444353 }}
           package: .
