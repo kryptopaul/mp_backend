@@ -2,7 +2,27 @@ const express = require("express");
 const axios = require("axios");
 
 const app = express();
-const port = 8080;
+const port = 3000;
+
+function calculateSalesStats(sales) {
+  let highestSale = 0;
+  let numHigherSales = 0;
+
+  // track the highest sale and the number of sales higher than the last sale
+  for (let i = 0; i < sales.length; i++) {
+    if (sales[i].value > highestSale) {
+      highestSale = sales[i].value;
+      numHigherSales++;
+    }
+  }
+
+  // Return 5 even if there are more "higher sales" because there's 5 stages of the NFT anyway.
+  if (numHigherSales > 5) {
+    numHigherSales = 5;
+  }
+
+  return numHigherSales;
+}
 
 app.get("/", async (req, res) => {
   const tokenID = Number(req.query.tokenID);
@@ -35,21 +55,23 @@ app.get("/", async (req, res) => {
 
     const lastSaleAmount = lastSales[lastSales.length - 1].value;
     console.log("Last sale amount: " + lastSaleAmount);
-    console.log("Array:");
-    console.log([highestSaleAmount, lastSaleAmount]);
 
-    res.send(
-        {
-            tokenID: tokenID,
-            highestSaleAmount: highestSaleAmount,
-            lastSaleAmount: lastSaleAmount,
-            sales: [highestSaleAmount, lastSaleAmount]
-        }
-    );
+    const stage = calculateSalesStats(lastSales);
+    console.log("Stage: " + stage)
+
+    res.send({
+      tokenID: tokenID,
+      highestSaleAmount: highestSaleAmount,
+      lastSaleAmount: lastSaleAmount,
+      sales: [highestSaleAmount, lastSaleAmount],
+      stage: stage,
+    });
   } catch (error) {
     console.error(error);
     res.send("Error occurred");
   }
 });
 
-app.listen(port, () => {});
+app.listen(port, () => {
+  console.log("Server started")
+});
