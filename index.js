@@ -5,6 +5,8 @@ const app = express();
 const port = 3000;
 require("dotenv").config();
 
+app.use(express.static("public"));
+
 const miladypoland = "0x5af0d9827e0c53e4799bb226655a1de152a425a5"; //CHANGE LATER
 
 const discordWebhook = process.env.DISCORD_WEBHOOK;
@@ -162,9 +164,9 @@ function calculateStage(sales) {
       }
     }
 
-    // Return 5 even if there are more "higher sales" because there's 5 stages of the NFT anyway.
-    if (numHigherSales > 5) {
-      numHigherSales = 5;
+    // Return 4 even if there are more "higher sales" because there's 4 stages of the NFT anyway.
+    if (numHigherSales > 4) {
+      numHigherSales = 4;
     }
 
     return numHigherSales;
@@ -209,24 +211,23 @@ function buildNFTMetadata(tokenID, remiliaScore, githubStats, stage) {
   return {
     name: `Milady Poland #${tokenID}`,
     description: "Milady Poland - built with <3 for HackOnChain",
-    image:
-      "https://media.discordapp.net/attachments/1042977707123814400/1112159974626447421/Untitled_Artwork.jpg",
+    image: `https://nft-backend-hackonchain.azurewebsites.net/api/image/${stage}`,
     attributes: [
       {
         trait_type: "Remilia Score",
-        value: remiliaScore,
+        value: remiliaScore.toString(),
       },
       {
         trait_type: "Developer Score",
-        value: githubStats.contributions,
+        value: githubStats.contributions.toString(),
       },
       {
         trait_type: "Developer Since",
-        value: githubStats.date,
+        value: githubStats.date.toString(),
       },
       {
         trait_type: "Evolution Stage",
-        value: stage,
+        value: stage.toString(),
       },
     ],
   };
@@ -285,6 +286,11 @@ app.get("/", async (req, res) => {
     console.error(error);
     res.send("Error occurred");
   }
+});
+
+app.get("/api/image/:id", async (req, res) => {
+  const id = req.params.id;
+  res.sendFile(__dirname + `/public/${id}.png`);
 });
 
 app.listen(port, () => {

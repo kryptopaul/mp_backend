@@ -1,5 +1,8 @@
 # MiladyPoland
 
+## Notatka
+- Z powodu kosztów deploya na mainnecie, backend bierze kontekst z kontraktu Milady, zamiast z MiladyPoland. Funkcjonalność jednak zostaje ta sama. -
+
 ## Wprowadzenie
 MiladyPoland wykorzystuje Cookie3 w celu stworzenia dynamicznego NFT z metadanymi zależnymi od różnych wydarzeń na chainie.
 
