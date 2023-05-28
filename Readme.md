@@ -12,7 +12,7 @@ W przyszłości planowane jest otwarcie mintu kolejnych NFT dla osób które bę
 
 NFT posiada także trait "Remilia Score" który jest zależny od ilości posiadanych NFT z szerzej pojętego ekosystemu Remilii. Podczas fetchowania metadanych, backend calluje API Cookie3 aby sprawdzić ilość wszystkich NFT w posiadaniu użytkownika. Backend sprawdza potem które z tych NFT są z ekosystemu Remilii i na tej podstawie oblicza Remilia Score.
 
-Dla przykładu: Użytkownik posiada na swoim portfelu 1 Milady i 2 Remilio. Jako że Milady jest warte 1 punkt, a Remilio 0.75, Remilia Score posiadacza NFT wynosi 2.5. Oczywiście przy zmianie właściciela danego NFT, Remilia Score również się zmienia. Podobna logika może być zastosowana przez inne projekty w celu sprawdzenia ilości posiadanych NFT z danego ekosystemu (BAYC i MAYC) i oferowania na podstawie tego wyniku różnych "experiences".
+Dla przykładu: Użytkownik posiada na swoim portfelu 1 Milady i 2 Remilio. Jako że Milady jest warte 1 punkt, a Remilio 0.75, Remilia Score posiadacza NFT wynosi 2.5. Oczywiście przy zmianie właściciela danego NFT, Remilia Score również się zmienia. Podobna logika może być zastosowana przez inne projekty w celu sprawdzenia ilości posiadanych NFT z danego ekosystemu (The Polacy i NFT Polska?) i oferowania na podstawie tego wyniku różnych "experiences".
 
 Jako inside-joke w Milady community, jeśli posiadacz NFT posiada na swoim portfelu także Bored Ape/Mutant Ape lub Nakamigos, automatycznie dostaje emotkę klauna 🤡 jako Remilia Score.
 
