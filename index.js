@@ -1,27 +1,235 @@
 const express = require("express");
 const axios = require("axios");
-
+const ethers = require("ethers");
 const app = express();
 const port = 3000;
+require("dotenv").config();
 
-function calculateSalesStats(sales) {
-  let highestSale = 0;
-  let numHigherSales = 0;
+const miladypoland = "0x5af0d9827e0c53e4799bb226655a1de152a425a5"; //CHANGE LATER
 
-  // track the highest sale and the number of sales higher than the last sale
-  for (let i = 0; i < sales.length; i++) {
-    if (sales[i].value > highestSale) {
-      highestSale = sales[i].value;
-      numHigherSales++;
+const discordWebhook = process.env.DISCORD_WEBHOOK;
+const cookie3apikey = process.env.COOKIE3_API_KEY;
+const githubapikey = process.env.GITHUB_API_KEY;
+const alchemyapikey = process.env.ALCHEMY_API_KEY;
+// for debugging only
+function waitTwoSeconds() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve();
+    }, 2000);
+  });
+}
+
+// Mapping of NFT addresses to their Remilia scores
+const remiliaInfo = new Map([
+  ["0x5af0d9827e0c53e4799bb226655a1de152a425a5", 1], // milady
+  ["0xd3d9ddd0cf0a5f0bfb8f7fceae075df687eaebab", 0.75], // remilio
+  ["0x09f66a094a0070ebddefa192a33fa5d75b59d46b", 0.75], // yayo
+  ["0xabcdb5710b88f456fed1e99025379e2969f29610", 0.5], // radbro
+  ["0x8fc0d90f2c45a5e7f94904075c952e0943cfccfd", 0.5], // pixelady
+]);
+
+async function getOwnerOfTokenID(id) {
+  try {
+    const provider = new ethers.providers.AlchemyProvider(
+      "mainnet",
+      alchemyapikey
+    );
+    const contract = new ethers.Contract(
+      miladypoland,
+      ["function ownerOf(uint256 tokenId) public view returns (address)"],
+      provider
+    );
+
+    const owner = await contract.ownerOf(id);
+    return owner;
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+async function calculateRemiliaScore(address) {
+  try {
+    let score = 0;
+    const bayc = "0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d";
+    const mayc = "0x60e4d786628fea6478f785a6d7e704777c86a7c6";
+    const nakamigos = "0xd774557b647330c91bf44cfeab205095f7e6c367";
+
+    const userNFTinfo = await axios.get(
+      `https://api.public.cookie3.co/Wallet/nfts/${address}`,
+      {
+        headers: {
+          Accept: "text/plain",
+          "x-api-key": `${cookie3apikey}`,
+        },
+      }
+    );
+    const info = userNFTinfo.data;
+    for (let i = 0; i < info.length; i++) {
+      const e = info[i];
+
+      // If any of the collection hashes are Nakamigos or BAYC/MAYC, return a clown emoji
+      if (
+        e.collectionHash === bayc ||
+        e.collectionHash === mayc ||
+        e.collectionHash === nakamigos
+      ) {
+        score = "🤡";
+        break;
+      }
+
+      // Check if a value for a fetched NFT contract exists in the map
+      if (remiliaInfo.has(e.collectionHash)) {
+        // If it does, add the value to the score
+        score += remiliaInfo.get(e.collectionHash);
+      }
     }
+    console.log("Remilia score for address " + address + ": " + score);
+    return score;
+  } catch (error) {
+    console.log(error);
   }
+}
 
-  // Return 5 even if there are more "higher sales" because there's 5 stages of the NFT anyway.
-  if (numHigherSales > 5) {
-    numHigherSales = 5;
+async function getContributions(token, username) {
+  try {
+    const headers = {
+      Authorization: `bearer ${token}`,
+    };
+    const query = `{
+      user(login: "kryptopaul") {
+        email
+        createdAt
+        contributionsCollection {
+          contributionCalendar {
+            totalContributions
+            weeks {
+              contributionDays {
+                weekday
+                date
+                contributionCount
+                color
+              }
+            }
+            months {
+              name
+              year
+              firstDay
+              totalWeeks
+            }
+          }
+        }
+      }
+    }`;
+
+    const response = await axios.post(
+      "https://api.github.com/graphql",
+      {
+        query: query,
+      },
+      { headers: headers }
+    );
+
+    const creationDate = new Date(response.data.data.user.createdAt);
+    const simpleDate =
+      creationDate.getDate().toString().padStart(2, "0") +
+      "-" +
+      (creationDate.getMonth() + 1).toString().padStart(2, "0") +
+      "-" +
+      creationDate.getFullYear().toString();
+    const contributions =
+      response.data.data.user.contributionsCollection.contributionCalendar
+        .totalContributions;
+    return {
+      date: simpleDate,
+      contributions: contributions,
+    };
+  } catch (error) {
+    console.log(error);
   }
+}
 
-  return numHigherSales;
+function calculateStage(sales) {
+  try {
+    let highestSale = 0;
+    let numHigherSales = 0;
+
+    // track the highest sale and the number of sales higher than the last sale
+    for (let i = 0; i < sales.length; i++) {
+      if (sales[i].value > highestSale) {
+        highestSale = sales[i].value;
+        numHigherSales++;
+      }
+    }
+
+    // Return 5 even if there are more "higher sales" because there's 5 stages of the NFT anyway.
+    if (numHigherSales > 5) {
+      numHigherSales = 5;
+    }
+
+    return numHigherSales;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+async function fetchLastSales(nftContract, id) {
+  const response = await axios.get(
+    `https://api.public.cookie3.co/NftCollection/${nftContract}/nftId/${id}/transactions`,
+    {
+      headers: {
+        Accept: "text/plain",
+        "x-api-key": `${cookie3apikey}`,
+      },
+    }
+  );
+  const lastSales = response.data
+    .filter((sale) => sale.value && sale.value !== 0)
+    .map((sale) => {
+      return {
+        value: sale.value,
+      };
+    });
+  console.log(lastSales);
+
+  const highestSaleAmount = Math.max.apply(
+    Math,
+    lastSales.map(function (o) {
+      return o.value;
+    })
+  );
+  console.log("Highest sale amount: " + highestSaleAmount);
+
+  const lastSaleAmount = lastSales[lastSales.length - 1].value;
+  console.log("Last sale amount: " + lastSaleAmount);
+  return lastSales;
+}
+
+function buildNFTMetadata(tokenID, remiliaScore, githubStats, stage) {
+  return {
+    name: `Milady Poland #${tokenID}`,
+    description: "Milady Poland - built with <3 for HackOnChain",
+    image:
+      "https://media.discordapp.net/attachments/1042977707123814400/1112159974626447421/Untitled_Artwork.jpg",
+    attributes: [
+      {
+        trait_type: "Remilia Score",
+        value: remiliaScore,
+      },
+      {
+        trait_type: "Developer Score",
+        value: githubStats.contributions,
+      },
+      {
+        trait_type: "Developer Since",
+        value: githubStats.date,
+      },
+      {
+        trait_type: "Evolution Stage",
+        value: stage,
+      },
+    ],
+  };
 }
 
 app.get("/", async (req, res) => {
@@ -33,39 +241,46 @@ app.get("/", async (req, res) => {
   //   }
 
   try {
-    const response = await axios.get(
-      `https://api.public.cookie3.co/NftCollection/0x5af0d9827e0c53e4799bb226655a1de152a425a5/nftId/${tokenID}/transactions`
-    );
-    const lastSales = response.data
-      .filter((sale) => sale.value && sale.value !== 0)
-      .map((sale) => {
-        return {
-          value: sale.value,
-        };
-      });
-    console.log(lastSales);
-
-    const highestSaleAmount = Math.max.apply(
-      Math,
-      lastSales.map(function (o) {
-        return o.value;
-      })
-    );
-    console.log("Highest sale amount: " + highestSaleAmount);
-
-    const lastSaleAmount = lastSales[lastSales.length - 1].value;
-    console.log("Last sale amount: " + lastSaleAmount);
-
-    const stage = calculateSalesStats(lastSales);
-    console.log("Stage: " + stage)
-
-    res.send({
-      tokenID: tokenID,
-      highestSaleAmount: highestSaleAmount,
-      lastSaleAmount: lastSaleAmount,
-      sales: [highestSaleAmount, lastSaleAmount],
-      stage: stage,
+    axios.post(discordWebhook, {
+      content: `Someone fetched metadata for token ID ${tokenID}`,
     });
+
+    const owner = await getOwnerOfTokenID(tokenID);
+    console.log(`Owner of token ID ${tokenID}: ${owner}`);
+
+    const lastSales = await fetchLastSales(
+      "0x5af0d9827e0c53e4799bb226655a1de152a425a5",
+      tokenID
+    );
+
+    const stage = calculateStage(lastSales);
+    console.log("Stage: " + stage);
+
+    const contributions = await getContributions(
+      `${githubapikey}`,
+      "kryptopaul"
+    );
+    console.log(contributions);
+
+    // Ratelimit :')
+    await waitTwoSeconds();
+
+    const remiliaScore = await calculateRemiliaScore(owner);
+    console.log(remiliaScore);
+
+    const metadata = buildNFTMetadata(
+      tokenID,
+      remiliaScore,
+      contributions,
+      stage
+    );
+    res.send(
+      metadata
+      // highestSaleAmount: highestSaleAmount,
+      // lastSaleAmount: lastSaleAmount,
+      // sales: [highestSaleAmount, lastSaleAmount],
+      // stage: stage,
+    );
   } catch (error) {
     console.error(error);
     res.send("Error occurred");
@@ -73,5 +288,5 @@ app.get("/", async (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log("Server started")
+  console.log("Server started!");
 });
