@@ -152,6 +152,11 @@ async function getContributions(token, username) {
 }
 
 function calculateStage(sales) {
+
+  if (sales.length === 0) {
+    return 1;
+  }
+
   try {
     let highestSale = 0;
     let numHigherSales = 0;
@@ -185,6 +190,7 @@ async function fetchLastSales(nftContract, id) {
       },
     }
   );
+
   const lastSales = response.data
     .filter((sale) => sale.value && sale.value !== 0)
     .map((sale) => {
@@ -202,7 +208,12 @@ async function fetchLastSales(nftContract, id) {
   );
   console.log("Highest sale amount: " + highestSaleAmount);
 
-  const lastSaleAmount = lastSales[lastSales.length - 1].value;
+  let lastSaleAmount;
+  if (highestSaleAmount === -Infinity) {
+    lastSaleAmount = 0;
+  } else {
+    lastSaleAmount = lastSales[lastSales.length - 1].value;
+  }
   console.log("Last sale amount: " + lastSaleAmount);
   return lastSales;
 }
