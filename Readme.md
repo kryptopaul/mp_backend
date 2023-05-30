@@ -2,7 +2,7 @@
 
 ## Note
 
-This is a version for the Weekly Web3 Workshops demo. While the original idea was to build a derivative of Milady with metadata dependent of the holder's on-chain data, this will focus on the technical aspects of the project.
+This is a version for the Weekly Web3 Workshops demo. While the original idea was to build a fun derivative of Milady with metadata dependent of the holder's on-chain data, this will focus on the technical aspects of the project.
 
 ## Features
 
@@ -17,6 +17,8 @@ This is a version for the Weekly Web3 Workshops demo. While the original idea wa
 | Yayo     | 0.75   |
 | Radbro   | 0.5    |
 | Pixelady | 0.5    |
+
+#### On-Chain Clowns
 
 Not all users are deserving of this score however. The users who've demonstrated their behaviour as "On-Chain Clowns" will receive a clown emoji as a value for this trait.
 
