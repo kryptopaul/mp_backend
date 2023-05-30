@@ -1,24 +1,32 @@
-# MiladyPoland
+# MiladyPoland - WWW Demo
 
-## Notatka
-- Z powodu kosztów deploya na mainnecie, backend bierze kontekst z kontraktu Milady, zamiast z MiladyPoland. Funkcjonalność jednak zostaje ta sama. -
+## Note
 
-## Wprowadzenie
-MiladyPoland wykorzystuje Cookie3 w celu stworzenia dynamicznego NFT z metadanymi zależnymi od różnych wydarzeń na chainie.
+This is a version for the Weekly Web3 Workshops demo. While the original idea was to build a derivative of Milady with metadata dependent of the holder's on-chain data, this will focus on the technical aspects of the project.
 
-Projekt kierowany jest do entuzjastów Milady i do szerszego grona Web3 deweloperów.
+## Features
 
-## Koncept
-Pierwsze 5 wymintowanych NFT jest stworzone dla pięciu zasłużonych deweloperów Web3 znanych w community Milady. Każdy z nich posiada trait który odzwierciedla ich datę dołączenia na Githuba ("Developer Since") i łączną ilość tzw. "contributions".
+### Remilia score
 
-W przyszłości planowane jest otwarcie mintu kolejnych NFT dla osób które będą mogły podpiąć swojego Githuba i zmintować własne NFT poniekąd reprezentujące siebie. 
+- The trait `Remilia Score` calculates the total Remilia ecosystem NFTs of the holder and returns a numeric value. The NFTs and the points are as in this table:
 
-NFT posiada także trait "Remilia Score" który jest zależny od ilości posiadanych NFT z szerzej pojętego ekosystemu Remilii. Podczas fetchowania metadanych, backend calluje API Cookie3 aby sprawdzić ilość wszystkich NFT w posiadaniu użytkownika. Backend sprawdza potem które z tych NFT są z ekosystemu Remilii i na tej podstawie oblicza Remilia Score.
+| NFT name | Points |
+| -------- | ------ |
+| Milady   | 1      |
+| Remilio  | 0.75   |
+| Yayo     | 0.75   |
+| Radbro   | 0.5    |
+| Pixelady | 0.5    |
 
-Dla przykładu: Użytkownik posiada na swoim portfelu 1 Milady i 2 Remilio. Jako że Milady jest warte 1 punkt, a Remilio 0.75, Remilia Score posiadacza NFT wynosi 2.5. Oczywiście przy zmianie właściciela danego NFT, Remilia Score również się zmienia. Podobna logika może być zastosowana przez inne projekty w celu sprawdzenia ilości posiadanych NFT z danego ekosystemu (The Polacy i NFT Polska?) i oferowania na podstawie tego wyniku różnych "experiences".
+Not all users are deserving of this score however. The users who've demonstrated their behaviour as "On-Chain Clowns" will receive a clown emoji as a value for this trait.
 
-Jako inside-joke w Milady community, jeśli posiadacz NFT posiada na swoim portfelu także Bored Ape/Mutant Ape lub Nakamigos, automatycznie dostaje emotkę klauna 🤡 jako Remilia Score.
+The following behaviours are considered "On-Chain Clown" behaviour:
+- Owning a Bored or Mutant Ape
+- Having ever sent ETH to ben.eth
 
-Kolejną cechą jest tzw. ewolucja NFT. Każdy NFT posiada trait "Evolution Stage" który jest zwiększany, jeżeli NFT zostanie sprzedany drożej niż najwyższa poprzednia sprzedaż. Jest to element gamifikacji, który również pozwala na obserwowanie jakie decyzje podejmują posiadacze NFT. Czy będą chcieli go zatrzymać dla siebie, ponieważ jest spersonalizowany, czy może sprzedadzą go dalej, aby zobaczyć jak będzie wyglądać kolejna wersja?
+### GitHub score
+As of the demo, my Github account is hardcoded.
 
-Dzięki powyższym rozwiązaniom, mamy nadzieję że posiadacze MiladyPoland będą mogli bardziej utożsamić się z własnym NFTkiem i zyskać bardziej speronalizowane doświadczenie.
+The trait `GitHub Score` calculates and returns the total number of contributions of the user.
+
+The trait `Developer since` returns the date of opening the Github account.
