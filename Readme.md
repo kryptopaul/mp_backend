@@ -20,7 +20,7 @@ This is a version for the Weekly Web3 Workshops demo. While the original idea wa
 
 #### On-Chain Clowns
 
-Not all users are deserving of this score however. The users who've demonstrated their behaviour as "On-Chain Clowns" will receive a clown emoji as a value for this trait.
+Not all users are deserving of this score however. The users who've demonstrated their behaviour as "On-Chain Clowns" will receive a clown (🤡) emoji as a value for this trait.
 
 The following behaviours are considered "On-Chain Clown" behaviour:
 - Owning a Bored or Mutant Ape
