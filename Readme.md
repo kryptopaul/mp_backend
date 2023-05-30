@@ -18,7 +18,7 @@ This is a version for the Weekly Web3 Workshops demo. While the original idea wa
 | Radbro   | 0.5    |
 | Pixelady | 0.5    |
 
-#### On-Chain Clowns
+#### 🤡 On-Chain Clowns
 
 Not all users are deserving of this score however. The users who've demonstrated their behaviour as "On-Chain Clowns" will receive a clown (🤡) emoji as a value for this trait.
 
