@@ -29,7 +29,7 @@ The following behaviours are considered "On-Chain Clown" behaviour:
 - Having ever sent ETH to ben.eth
 
 ### GitHub score
-As of the demo, my Github account is hardcoded.
+As of the demo, my Github account is hardcoded. In the future, this will be a dynamic value where the holders will be able to verify the ownership of their Github account and add it to our backend.
 
 The trait `GitHub Score` calculates and returns the total number of contributions of the user.
 
