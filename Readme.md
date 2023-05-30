@@ -26,6 +26,7 @@ Not all users are deserving of this score however. The users who've demonstrated
 
 The following behaviours are considered "On-Chain Clown" behaviour:
 - Owning a Bored or Mutant Ape
+- Owning a Nakamigos
 - Having ever sent ETH to ben.eth
 
 ### GitHub score
