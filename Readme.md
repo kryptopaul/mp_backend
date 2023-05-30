@@ -4,6 +4,8 @@
 
 This is a version for the Weekly Web3 Workshops demo. While the original idea was to build a fun derivative of Milady with metadata dependent of the holder's on-chain data, this will focus on the technical aspects of the project.
 
+It also scraps the aspects that would only work on the mainnet, such as different images depending on a particular NFT's transfer and sales history.
+
 ## Features
 
 ### Remilia score
