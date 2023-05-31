@@ -7,12 +7,16 @@ require("dotenv").config();
 
 app.use(express.static("public"));
 
+// Some wallet with Nakamigos 0x77E3e957082Ca648c1C5b0F3e6AEc00Ab1245186
+
 const miladypoland = "0x5af0d9827e0c53e4799bb226655a1de152a425a5"; //CHANGE LATER
 
 const discordWebhook = process.env.DISCORD_WEBHOOK;
 const cookie3apikey = process.env.COOKIE3_API_KEY;
 const githubapikey = process.env.GITHUB_API_KEY;
 const alchemyapikey = process.env.ALCHEMY_API_KEY;
+const alchemygoerli = process.env.ALCHEMY_GOERLI;
+
 // for debugging only
 function waitTwoSeconds() {
   return new Promise((resolve) => {
@@ -56,6 +60,7 @@ async function calculateRemiliaScore(address) {
     const bayc = "0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d";
     const mayc = "0x60e4d786628fea6478f785a6d7e704777c86a7c6";
     const nakamigos = "0xd774557b647330c91bf44cfeab205095f7e6c367";
+    const ben = "0x91364516D3CAD16E1666261dbdbb39c881Dbe9eE";
 
     const userNFTinfo = await axios.get(
       `https://api.public.cookie3.co/Wallet/nfts/${address}`,
@@ -86,6 +91,34 @@ async function calculateRemiliaScore(address) {
         score += remiliaInfo.get(e.collectionHash);
       }
     }
+
+    // Lastly, check if a user sent money to ben.eth
+    const endpoint = `https://eth-mainnet.g.alchemy.com/v2/${alchemyapikey}`;
+    const response = await axios.post(endpoint, {
+      id: 1,
+      jsonrpc: "2.0",
+      method: "alchemy_getAssetTransfers",
+      params: [
+        {
+          fromBlock: "0x0",
+          toBlock: "latest",
+          toAddress: ben,
+          category: ["external"],
+          withMetadata: false,
+          excludeZeroValue: true,
+          maxCount: "0x3e8",
+          fromAddress: address,
+        },
+      ],
+    });
+
+    console.log(
+      "Transactions to ben.eth: " + response.data.result.transfers.length
+    );
+    if (response.data.result.transfers.length > 0) {
+      score = "🤡";
+    }
+
     console.log("Remilia score for address " + address + ": " + score);
     return score;
   } catch (error) {
@@ -151,78 +184,11 @@ async function getContributions(token, username) {
   }
 }
 
-function calculateStage(sales) {
-
-  if (sales.length === 0) {
-    return 1;
-  }
-
-  try {
-    let highestSale = 0;
-    let numHigherSales = 0;
-
-    // track the highest sale and the number of sales higher than the last sale
-    for (let i = 0; i < sales.length; i++) {
-      if (sales[i].value > highestSale) {
-        highestSale = sales[i].value;
-        numHigherSales++;
-      }
-    }
-
-    // Return 4 even if there are more "higher sales" because there's 4 stages of the NFT anyway.
-    if (numHigherSales > 4) {
-      numHigherSales = 4;
-    }
-
-    return numHigherSales;
-  } catch (error) {
-    console.log(error);
-  }
-}
-
-async function fetchLastSales(nftContract, id) {
-  const response = await axios.get(
-    `https://api.public.cookie3.co/NftCollection/${nftContract}/nftId/${id}/transactions`,
-    {
-      headers: {
-        Accept: "text/plain",
-        "x-api-key": `${cookie3apikey}`,
-      },
-    }
-  );
-
-  const lastSales = response.data
-    .filter((sale) => sale.value && sale.value !== 0)
-    .map((sale) => {
-      return {
-        value: sale.value,
-      };
-    });
-  console.log(lastSales);
-
-  const highestSaleAmount = Math.max.apply(
-    Math,
-    lastSales.map(function (o) {
-      return o.value;
-    })
-  );
-  console.log("Highest sale amount: " + highestSaleAmount);
-
-  let lastSaleAmount;
-  if (highestSaleAmount === -Infinity) {
-    lastSaleAmount = 0;
-  } else {
-    lastSaleAmount = lastSales[lastSales.length - 1].value;
-  }
-  console.log("Last sale amount: " + lastSaleAmount);
-  return lastSales;
-}
-
-function buildNFTMetadata(tokenID, remiliaScore, githubStats, stage) {
+function buildNFTMetadata(tokenID, remiliaScore, githubStats) {
   return {
     name: `Milady Poland #${tokenID}`,
     description: "Milady Poland - built with <3 for HackOnChain",
-    image: `https://nft-backend-hackonchain.azurewebsites.net/api/image/${stage}`,
+    image: `https://nft-backend-hackonchain.azurewebsites.net/api/image/1`,
     attributes: [
       {
         trait_type: "Remilia Score",
@@ -235,10 +201,6 @@ function buildNFTMetadata(tokenID, remiliaScore, githubStats, stage) {
       {
         trait_type: "Developer Since",
         value: githubStats.date.toString(),
-      },
-      {
-        trait_type: "Evolution Stage",
-        value: stage.toString(),
       },
     ],
   };
@@ -260,39 +222,21 @@ app.get("/", async (req, res) => {
     const owner = await getOwnerOfTokenID(tokenID);
     console.log(`Owner of token ID ${tokenID}: ${owner}`);
 
-    const lastSales = await fetchLastSales(
-      "0x5af0d9827e0c53e4799bb226655a1de152a425a5",
-      tokenID
-    );
-
-    const stage = calculateStage(lastSales);
-    console.log("Stage: " + stage);
-
     const contributions = await getContributions(
       `${githubapikey}`,
       "kryptopaul"
     );
-    console.log(contributions);
+    console.log("GitHub Statistics: ");
+    console.log("Developer since: " + contributions.date);
+    console.log("Contributions: " + contributions.contributions);
 
     // Ratelimit :')
     await waitTwoSeconds();
 
     const remiliaScore = await calculateRemiliaScore(owner);
-    console.log(remiliaScore);
 
-    const metadata = buildNFTMetadata(
-      tokenID,
-      remiliaScore,
-      contributions,
-      stage
-    );
-    res.send(
-      metadata
-      // highestSaleAmount: highestSaleAmount,
-      // lastSaleAmount: lastSaleAmount,
-      // sales: [highestSaleAmount, lastSaleAmount],
-      // stage: stage,
-    );
+    const metadata = buildNFTMetadata(tokenID, remiliaScore, contributions);
+    res.send(metadata);
   } catch (error) {
     console.error(error);
     res.send("Error occurred");
