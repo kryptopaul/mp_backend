@@ -1,5 +1,13 @@
 # MiladyPoland - WWW Demo
 
+## Goerli OpenSea
+
+[https://testnets.opensea.io/collection/miladypolandworkshopdemo](https://testnets.opensea.io/collection/miladypolandworkshopdemo)
+
+## Contract
+
+[https://goerli.etherscan.io/address/0xea75d3d1e4cadf2a3def22a6639dd036e9a2fba6](https://goerli.etherscan.io/address/0xea75d3d1e4cadf2a3def22a6639dd036e9a2fba6)
+
 ## Note
 
 This is a version for the Weekly Web3 Workshops demo. While the original idea was to build a fun derivative of Milady with metadata dependent of the holder's on-chain data, this will focus on the technical aspects of the project.
@@ -25,11 +33,13 @@ It also scraps the aspects that would only work on the mainnet, such as differen
 Not all users are deserving of this score however. The users who've demonstrated their behaviour as "On-Chain Clowns" will receive a clown (🤡) emoji as a value for this trait.
 
 The following behaviours are considered "On-Chain Clown" behaviour:
+
 - Owning a Bored or Mutant Ape
 - Owning a Nakamigos
 - Having ever sent ETH to ben.eth
 
 ### GitHub score
+
 As of the demo, my Github account is hardcoded. In the future, this will be a dynamic value where the holders will be able to verify the ownership of their Github account and add it to our backend.
 
 The trait `GitHub Score` calculates and returns the total number of contributions of the user.

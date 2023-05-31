@@ -9,7 +9,7 @@ app.use(express.static("public"));
 
 // Some wallet with Nakamigos 0x77E3e957082Ca648c1C5b0F3e6AEc00Ab1245186
 
-const miladypoland = "0x5af0d9827e0c53e4799bb226655a1de152a425a5"; //CHANGE LATER
+const miladypoland = "0xea75d3d1e4cadf2a3def22a6639dd036e9a2fba6"; //CHANGE LATER
 
 const discordWebhook = process.env.DISCORD_WEBHOOK;
 const cookie3apikey = process.env.COOKIE3_API_KEY;
@@ -188,7 +188,9 @@ function buildNFTMetadata(tokenID, remiliaScore, githubStats) {
   return {
     name: `Milady Poland #${tokenID}`,
     description: "Milady Poland - built with <3 for HackOnChain",
-    image: `https://nft-backend-hackonchain.azurewebsites.net/api/image/1`,
+    image: `https://miladypoland-workshopdemo.azurewebsites.net/api/image/${
+      remiliaScore === "🤡" ? "clown" : 1
+    }`,
     attributes: [
       {
         trait_type: "Remilia Score",
