@@ -38,8 +38,8 @@ const remiliaInfo = new Map([
 async function getOwnerOfTokenID(id) {
   try {
     const provider = new ethers.providers.AlchemyProvider(
-      "mainnet",
-      alchemyapikey
+      "goerli",
+      alchemygoerli
     );
     const contract = new ethers.Contract(
       miladypoland,
