@@ -30,7 +30,7 @@ It also scraps the aspects that would only work on the mainnet, such as differen
 
 #### 🤡 On-Chain Clowns
 
-Not all users are deserving of this score however. The users who've demonstrated their behaviour as "On-Chain Clowns" will receive a clown (🤡) emoji as a value for this trait.
+Not all users are deserving of this score however. The users who've demonstrated their behaviour as "On-Chain Clowns" will receive a clown (🤡) emoji as a value for this trait and a different image.
 
 The following behaviours are considered "On-Chain Clown" behaviour:
 
