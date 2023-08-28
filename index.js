@@ -2,6 +2,8 @@ const express = require("express");
 const axios = require("axios");
 const ethers = require("ethers");
 const app = express();
+const mongoose = require("mongoose");
+const bodyParser = require("body-parser");
 const port = 3000;
 require("dotenv").config();
 
@@ -13,6 +15,14 @@ const discordWebhook = process.env.DISCORD_WEBHOOK;
 const cookie3apikey = process.env.COOKIE3_API_KEY;
 const githubapikey = process.env.GITHUB_API_KEY;
 const alchemyapikey = process.env.ALCHEMY_API_KEY;
+
+const connection = process.env.CONNECTION;
+const schema = new mongoose.Schema({
+  wallet: String,
+  github: String,
+});
+const User = mongoose.model("User", schema);
+
 // for debugging only
 function waitTwoSeconds() {
   return new Promise((resolve) => {
@@ -99,7 +109,7 @@ async function getContributions(token, username) {
       Authorization: `bearer ${token}`,
     };
     const query = `{
-      user(login: "kryptopaul") {
+      user(login: "${username}") {
         email
         createdAt
         contributionsCollection {
@@ -152,7 +162,6 @@ async function getContributions(token, username) {
 }
 
 function calculateStage(sales) {
-
   if (sales.length === 0) {
     return 1;
   }
@@ -218,6 +227,17 @@ async function fetchLastSales(nftContract, id) {
   return lastSales;
 }
 
+async function getGithubUsername(address) {
+  // get it from mongo
+  await mongoose.connect(connection, {
+    dbName: "MiladyPoland",
+  });
+  const user = await User.findOne({
+    wallet: address,
+  });
+  return user ? user.github : "No Github Account";
+}
+
 function buildNFTMetadata(tokenID, remiliaScore, githubStats, stage) {
   return {
     name: `Milady Poland #${tokenID}`,
@@ -230,11 +250,11 @@ function buildNFTMetadata(tokenID, remiliaScore, githubStats, stage) {
       },
       {
         trait_type: "Developer Score",
-        value: githubStats.contributions.toString(),
+        value: githubStats ? githubStats.contributions.toString() : '0',
       },
       {
         trait_type: "Developer Since",
-        value: githubStats.date.toString(),
+        value: githubStats ? githubStats.date.toString() : 'N/A',
       },
       {
         trait_type: "Evolution Stage",
@@ -268,10 +288,14 @@ app.get("/", async (req, res) => {
     const stage = calculateStage(lastSales);
     console.log("Stage: " + stage);
 
-    const contributions = await getContributions(
-      `${githubapikey}`,
-      "kryptopaul"
-    );
+    const githubUsername = await getGithubUsername(owner);
+    console.log("Github username: " + githubUsername);
+
+    let contributions;
+    if (githubUsername !== "No Github Account") {
+      contributions = await getContributions(`${githubapikey}`, githubUsername);
+    }
+
     console.log(contributions);
 
     // Ratelimit :')
@@ -302,6 +326,22 @@ app.get("/", async (req, res) => {
 app.get("/api/image/:id", async (req, res) => {
   const id = req.params.id;
   res.sendFile(__dirname + `/public/${id}.png`);
+});
+
+app.post("/add", bodyParser.json(), async (req, res) => {
+  const { wallet, github } = req.body;
+  await mongoose.connect(connection, {
+    dbName: "MiladyPoland",
+  });
+  console.info("connected");
+  const userObj = new User({
+    wallet: wallet,
+    github: github,
+  });
+  console.info("saving " + userObj);
+  await userObj.save();
+  console.info("saved");
+  res.send(JSON.stringify("Success"));
 });
 
 app.listen(port, () => {
