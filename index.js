@@ -5,8 +5,10 @@ const app = express();
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const port = 3000;
+const cors = require("cors");
 require("dotenv").config();
 
+app.use(cors());
 app.use(express.static("public"));
 
 const miladypoland = "0x5af0d9827e0c53e4799bb226655a1de152a425a5"; //CHANGE LATER
@@ -343,6 +345,10 @@ app.post("/add", bodyParser.json(), async (req, res) => {
   console.info("saved");
   res.send(JSON.stringify("Success"));
 });
+
+app.get("/cebula", async (req, res) => {
+  return res.sendFile(__dirname + "/public/cebula/cebula.png");
+})
 
 app.listen(port, () => {
   console.log("Server started!");
