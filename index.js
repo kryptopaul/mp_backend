@@ -11,7 +11,7 @@ require("dotenv").config();
 app.use(cors());
 app.use(express.static("public"));
 
-const miladypoland = "0x5af0d9827e0c53e4799bb226655a1de152a425a5"; //CHANGE LATER
+const miladypoland = "0xCd8Cb673bD3c880f54e38681f39bEF6F4Bc5950f"; //CHANGE LATER
 
 const discordWebhook = process.env.DISCORD_WEBHOOK;
 const cookie3apikey = process.env.COOKIE3_API_KEY;
@@ -243,8 +243,8 @@ async function getGithubUsername(address) {
 function buildNFTMetadata(tokenID, remiliaScore, githubStats, stage) {
   return {
     name: `Milady Poland #${tokenID}`,
-    description: "Milady Poland - built with <3 for HackOnChain",
-    image: `https://nft-backend-hackonchain.azurewebsites.net/api/image/${stage}`,
+    description: "Milady Poland - Polska, Development, Autyzm.",
+    image: `https://nft-backend-hackonchain.azurewebsites.net/api/image/${tokenID}`,
     attributes: [
       {
         trait_type: "Remilia Score",
@@ -327,7 +327,7 @@ app.get("/", async (req, res) => {
 
 app.get("/api/image/:id", async (req, res) => {
   const id = req.params.id;
-  res.sendFile(__dirname + `/public/${id}.png`);
+  res.sendFile(__dirname + `/public/preview/preview.gif`);
 });
 
 app.post("/add", bodyParser.json(), async (req, res) => {
